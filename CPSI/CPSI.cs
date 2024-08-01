@@ -103,10 +103,13 @@ namespace CPSI
                         case "showscript":
                             ShowState = true;
                             break;
-                        case "task":
+                        case "sleep":
+                            Thread.Sleep(Convert.ToInt32(s.Substring(6)));
+                            break;
+                        case "clsl":
                             runTask(s.Substring(5), false);
                             break;
-                        case "clsm":
+                        case "load":
                             runTask(s.Substring(5), true);
                             break;
                         case "del":
