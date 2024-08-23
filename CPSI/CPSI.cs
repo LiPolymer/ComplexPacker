@@ -1,8 +1,6 @@
 ﻿using DawnUtils;
 using System.Diagnostics;
 using System.IO.Compression;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace CPSI
 {
@@ -88,14 +86,24 @@ namespace CPSI
                 try
                 {
                     s = varFormater(s);
+                    if (s.StartsWith('#'))
+                    {
+                        return true;
+                    }
                     if (ShowState)
                     {
-                        Terminal.WriteLine(string.Format("&c%8%&[&c%b%&{0}&c%8%&]&c%e%&{1}", line, s));
+                        Terminal.WriteLine(
+                            string.Format("&c%8%&[&c%b%&{0}&c%8%&]&c%e%&{1}"
+                            , line, s)
+                            );
                     }
                     switch (s.Split(' ')[0])
                     {
                         case "makecopy":
                             makecopyCrossroad(s);
+                            break;
+                        case "copy":
+                            copyCP(Resolver.ResolveArgs(s));
                             break;
                         case "hidescript":
                             ShowState = false;
@@ -106,7 +114,7 @@ namespace CPSI
                         case "sleep":
                             Thread.Sleep(Convert.ToInt32(s.Substring(6)));
                             break;
-                        case "clsl":
+                        case "task":
                             runTask(s.Substring(5), false);
                             break;
                         case "load":
@@ -121,6 +129,9 @@ namespace CPSI
                         case "env":
                             evarSet(s);
                             break;
+                        case "shdo":
+                            shDo(s);
+                            break;
                         case "echo":
                             Terminal.WriteLine("&c%8%&[&c%7%&>&c%8%&]&c%r%&" + s.Substring(5));
                             break;
@@ -128,6 +139,13 @@ namespace CPSI
                             pkgCrossroad(s);
                             break;
                         default:
+                            Terminal.WriteLine(
+                                $"&c%8%&[&c%4%&!&c%8%&]&c%c%&UnknownStatement&c%8%&[&c%e%&{
+                                    s.Split(' ')[0]
+                                    + "&c%8%&" 
+                                    + s.Substring(s.Split(' ').Length + 2)
+                                    }&c%8%&]"
+                                    );
                             break;
                     }
                 }
@@ -137,6 +155,30 @@ namespace CPSI
                     return false;
                 }
                 return true;
+            }
+            
+            public void shDo(string s)
+            {
+                Terminal.WriteLine($"&c%8%&[&c%c%&c&c%8%&]&c%7%&Executing &c%8%&[&c%7%&{s.Substring(5)}&c%8%&]");
+                string[] ss = s.Split(' ');
+                ProcessStartInfo i = new ProcessStartInfo(ss[1], s.Substring(5 + ss[1].Length)) { RedirectStandardOutput = true };
+                var p = Process.Start(i);
+                if (p == null)
+                {
+                    Terminal.WriteLine("&c%8%&[&c%c%&!&c%8%&]&c%7%&Failed!");
+                }
+                else
+                {
+                    var sr = p.StandardOutput;
+                    while (!p.HasExited)
+                    {
+                        while (!sr.EndOfStream)
+                        {
+                            Terminal.WriteLine($"&c%8%&[&c%c%&c&c%8%&][&c%7%&>&c%8%&]{sr.ReadLine()}");
+                        }
+                    }
+                    Terminal.WriteLine($"&c%8%&[&c%c%&c&c%8%&]&c%7%&Executing finished in &c%8%&[&c%7%&{(p.ExitTime - p.StartTime).TotalMilliseconds}&c%8%&] &c%7%&ms");
+                }
             }
 
             // task & clsm
@@ -157,14 +199,29 @@ namespace CPSI
             //Package
             public void pkgCrossroad(string s)
             {
-                string[] ss = s.Split(' ');
+                string[] ss = Resolver.ResolveArgs(s);
                 switch (ss[1])
                 {
                     case "make":
                         switch (ss[2])
                         {
                             case "zip":
-                                pkgMakeZip();
+                                if (ss.Length > 3)
+                                {
+                                    pkgMakeZip(ss[3], ss[4], ss[5]);
+                                }
+                                else
+                                {
+                                    pkgMakeZip();
+                                }
+                                break;
+                        }
+                        break;
+                    case "apart":
+                        switch (ss[2])
+                        {
+                            case "zip":
+                                pkgApartZip(ss[3], ss[4]);
                                 break;
                         }
                         break;
@@ -173,14 +230,38 @@ namespace CPSI
                 }
             }
 
-            public void pkgMakeZip()
+            public void pkgMakeZip(string? tdir = null,string? odir = null, string? ofnm = null)
             {
-                Terminal.WriteLine($"&c%8%&[&c%6%&z&c%8%&]&c%7%&Creating ZipPack...");
-                if (!Directory.Exists(geteVar("project.outdest")))
+                if (tdir == null)
                 {
-                    Directory.CreateDirectory(geteVar("project.outdest"));
+                    tdir = geteVar("project.cache");
                 }
-                pkgZipGenerator(geteVar("project.cache"),Path.Combine(geteVar("project.outdest"),varFormater(geteVar("project.artifactName")).Replace("\\","/")));
+                if (odir == null)
+                {
+                    odir = geteVar("project.outdest");
+                }
+                if (ofnm == null)
+                {
+                    ofnm = varFormater(geteVar("project.artifactName"));
+                }
+                Terminal.WriteLine($"&c%8%&[&c%6%&z&c%8%&]&c%7%&Creating ZipPack...");
+                if (!Directory.Exists(odir))
+                {
+                    Directory.CreateDirectory(odir);
+                }
+                pkgZipGenerator(tdir,
+                    Path.Combine(odir,ofnm)
+                    .Replace("\\","/")
+                    );
+            }
+
+            public void pkgApartZip(string tfile, string tdest)
+            {
+                if (!Directory.Exists(tdest))
+                {
+                    Directory.CreateDirectory(tdest);
+                }
+                ZipFile.ExtractToDirectory(tfile, tdest);
             }
 
             public void pkgZipGenerator(string target,string outpath)
@@ -479,7 +560,7 @@ namespace CPSI
                             }
                             if (allow)
                             {
-                                Terminal.WriteLine($"&c%8%&[&c%b%&c&c%8%&][&c%7%&D&c%8%&]&c%7%&{name}&c%8%&|{src} to {dest}");
+                                Terminal.WriteLine($"&c%8%&[&c%b%&c&c%8%&][&c%7%&D&c%8%&]&c%7%&{name}/&c%8%&|{src} to {dest}");
                                 makecopyCopy(folder, dest, icontain, imatch, ipath);
                             }
                         }
@@ -497,7 +578,9 @@ namespace CPSI
             {
                 deletor(s.Substring(4));
             }
+
             public void deletor(string path)
+
             {
                 if (File.GetAttributes(path) == FileAttributes.Directory)
                 {
@@ -507,6 +590,78 @@ namespace CPSI
                 {
                     File.Delete(path);
                 }
+            }
+            public void copyCP(string[] ca)
+            {
+                if (ca.Length > 3)
+                {
+                    if (ca[3] == "carry")
+                    {
+                        // init
+                        Terminal.WriteLine("&c%8%&[&c%b%&c&c%8%&]&c%7%&Resolving ignorations");
+                        List<string> ic = new List<string>();
+                        List<string> im = new List<string>();
+                        List<string> ip = new List<string>();
+                        foreach (string s in MKCopyIgnores)
+                        {
+                            Terminal.WriteLine($"&c%8%& |&c%7%&Parsing&c%8%&[&c%f%&{s}&c%8%&]");
+                            if (s.StartsWith("./"))
+                            {
+                                ip.Add(s);
+                            }
+                            else if (s.Contains("@"))
+                            {
+                                if (s.StartsWith("c@"))
+                                {
+                                    ic.Add(s.Substring(2));
+                                }
+                                else if (s.StartsWith("m@"))
+                                {
+                                    im.Add(s.Substring(2));
+                                }
+                                else if (s.StartsWith("p@"))
+                                {
+                                    ip.Add(s.Substring(2));
+                                }
+                            }
+                            else if (s.StartsWith("*") | s.EndsWith("*"))
+                            {
+                                ic.Add(s.Replace("*", ""));
+                            }
+                            else
+                            {
+                                im.Add(s);
+                            }
+                        }
+                        Terminal.WriteLine($"&c%8%&[-]&c%7%&Done!");
+
+                    #if DEBUG
+                        if (true)
+                        {
+                            Terminal.WriteLine($"&c%d%&[D]Done!");
+                            foreach (string s in ic)
+                            {
+                                Terminal.WriteLine($"&c%d%&[D][ic]{s}");
+                            }
+                            foreach (string s in im)
+                            {
+                                Terminal.WriteLine($"&c%d%&[D][im]{s}");
+                            }
+                            foreach (string s in ip)
+                            {
+                                Terminal.WriteLine($"&c%d%&[D][ip]{s}");
+                            }
+                        }
+                    #endif
+                        Terminal.WriteLine("&c%8%&[&c%b%&c&c%8%&]&c%f%&Start Copy!");
+                        makecopyCopy(ca[1], ca[2], ic, im, ip);
+                        Terminal.WriteLine("&c%8%&[&c%b%&c&c%8%&]&c%f%&Done!");
+                        return;
+                    }
+                }
+                Terminal.WriteLine("&c%8%&[&c%b%&c&c%8%&]&c%f%&Start Copy!");
+                makecopyCopy(ca[1], ca[2]);
+                Terminal.WriteLine("&c%8%&[&c%b%&c&c%8%&]&c%f%&Done!");
             }
         }
     }

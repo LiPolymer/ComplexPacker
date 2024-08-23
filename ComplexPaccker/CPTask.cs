@@ -72,10 +72,13 @@ namespace ComplexPaccker
             }
             foreach (string file in Directory.GetFiles("./tasks"))
             {
-                Terminal.WriteLine($"&c%8%& |&c%6%&{Path.GetFileName(file).Remove(Path.GetFileName(file).Length - 4)}&c%8%&[{file.Replace("\\","/")}]");
-                Tasks!.Add(Path.GetFileName(file).Remove(Path.GetFileName(file).Length - 4));
+                if (Path.GetFileName(file).EndsWith(".cps"))
+                {
+                    Terminal.WriteLine($"&c%8%& |&c%6%&{Path.GetFileName(file).Remove(Path.GetFileName(file).Length - 4)}&c%8%&[{file.Replace("\\", "/")}]");
+                    Tasks!.Add(Path.GetFileName(file).Remove(Path.GetFileName(file).Length - 4));
+                }
             }
-            Terminal.WriteLine($"&c%8%&[-]&c%6%&Done! {Tasks.Count()} Script(s) Loaded");
+            Terminal.WriteLine($"&c%8%&[-]&c%6%&Done! {Tasks.Count()} Task(s) Loaded");
         }
     }
 }

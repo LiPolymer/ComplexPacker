@@ -9,7 +9,6 @@ namespace ComplexPaccker
         static void Main(string[] args)
         {
             Console.ForegroundColor = ConsoleColor.White;
-            Terminal.WriteLine("CP DEV");
             foreach (string ag in args)
             {
                 Terminal.WriteLine(ag);
@@ -38,7 +37,16 @@ namespace ComplexPaccker
                 case "build":
                     rootCrossroad(["task", "build"]);
                     break;
-                #if DEBUG
+                case "run":
+                    rootCrossroad(["task", "run"]);
+                    break;
+                case "publish":
+                    rootCrossroad(["task", "publish"]);
+                    break;
+                case "debug":
+                    rootCrossroad(["task", "build"]);
+                    break;
+#if DEBUG
                 case "-dbg":
                     Debug.debugCrossroad(args);
                     break;
@@ -80,7 +88,7 @@ namespace ComplexPaccker
 
         static void CommandProcessor(string cmd)
         {
-            string[] args = cmd.Split(' ');
+            string[] args = Resolver.ResolveArgs(cmd);
             if (args.Length == 0)
             {
 
@@ -91,9 +99,12 @@ namespace ComplexPaccker
                 {
                     case "":
                         break;
+                    case "help":
+                        Terminal.WriteLine("&c%b%&[*]AvilableCommands");
+                        break;
                     case "action":
                         if (cmd.Length > 7){
-                            rootCrossroad(cmd.Remove(0, 7).Split(' '));
+                            rootCrossroad(Resolver.ResolveArgs(cmd.Remove(0, 7)));
                         }
                         else
                         {
@@ -108,6 +119,15 @@ namespace ComplexPaccker
                         break;
                     case "build":
                         rootCrossroad(["build"]);
+                        break;
+                    case "run":
+                        rootCrossroad(["run"]);
+                        break;
+                    case "publish":
+                        rootCrossroad(["publish"]);
+                        break;
+                    case "debug":
+                        rootCrossroad(["debug"]);
                         break;
                     case "exit":
                         Environment.Exit(0);

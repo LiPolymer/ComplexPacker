@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Text.RegularExpressions;
 
 namespace DawnUtils
 {
@@ -127,5 +128,16 @@ namespace DawnUtils
             Console.WriteLine(RemoveTags("&c%3%&Dawn&c%7%&.&c%2%&Util&c%7%&.&c%e%&Terminal&c%f%&(); &c%8%&v1"));
         }
     }
+
+    public class Resolver
+    {
+        public static string[] ResolveArgs(string st)
+        {
+            return Regex.Matches(st, @"""([^""]*)""|(\S+)")
+                .Select(i => i.Value)
+                .ToArray();
+        }
+    }
+
 }
 

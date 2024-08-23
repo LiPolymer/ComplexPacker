@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Util", "Util\Util.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CPSI", "CPSI\CPSI.csproj", "{88AC77ED-7BB4-4984-83F3-9F21A684211D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICPPlugin", "ICPPlugin\ICPPlugin.csproj", "{8BE036E3-7484-4E3C-B0DA-B20CA1DEC1BB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{88AC77ED-7BB4-4984-83F3-9F21A684211D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{88AC77ED-7BB4-4984-83F3-9F21A684211D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{88AC77ED-7BB4-4984-83F3-9F21A684211D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BE036E3-7484-4E3C-B0DA-B20CA1DEC1BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BE036E3-7484-4E3C-B0DA-B20CA1DEC1BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BE036E3-7484-4E3C-B0DA-B20CA1DEC1BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BE036E3-7484-4E3C-B0DA-B20CA1DEC1BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
