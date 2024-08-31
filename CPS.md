@@ -1,4 +1,4 @@
-# ComplexPacckerScript(CPS)关键字列表
+# ComplexPackerScript(CPS)关键字列表
 **开发中,随时变动**
 ## echo
 基本用法 `echo <msg>`
@@ -57,6 +57,10 @@
 >
 > 显而易见的,`makecopy ignore list`则会列出所有排除项。
 
+## copy
+基本用法 `copy <源目录> <目标目录>`
+
+特别地,`copy <源目录> <目标目录> carry`可以应用针对`makecopy`而设置的排除列表
 ## showscript/hidescript
 CPS解释器默认会在终端打印当前执行的语句,该功能默认打开
 
@@ -79,16 +83,16 @@ CPS解释器默认会在终端打印当前执行的语句,该功能默认打开
 无需多言
 
 **del**ete
-## clsl/load
+## task/load
 *乱取的名*
 
-基本用法 `clsl <path>` `load <path>`
+基本用法 `task <path>` `load <path>`
 
 执行`<path>`指向的脚本
 
 两者区别:
 
-`clsl`会单独启动一个新的解释器实例,这通常意味着环境变量,makecopy排除列表等修改不会被继承;
+`task`会单独启动一个新的解释器实例,这通常意味着环境变量,makecopy排除列表等修改不会被继承;
 
 而`load`的效果则相当于将指定脚本插入该位置进行运行,使用执行load的解释器实例.
 

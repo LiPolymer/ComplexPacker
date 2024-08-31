@@ -24,8 +24,8 @@ Enter 'build' and execute to run 'build. cps'`
 >
 >CPS, also known as ComplexPackerScript, is a script language specifically designed for this program.
 >
->Starting from the first line, execute line by line. Please refer to [CPS.md](CPS.md) for statements' documents
+>Starting from the first line, execute line by line. Please refer to [CPS.md](../CPS.md) for statements' documents
 >
->If you think column based learning is more appropriate, please refer to [CPSExample.md](CPSExample.md)
+>If you think column based learning is more appropriate, please refer to [CPSExample.md](../CPSExample.md)
 >
 Regarding CI configuration, you can refer to [ArCore](https://gitlab.com/SiWG/ArCore), which is the repository for the mod-pack [theArcadia](https://modrinth.com/modpack/thearcadia) modified core module, and uses ComplexPacker to provide CI support.
