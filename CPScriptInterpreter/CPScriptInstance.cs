@@ -2,65 +2,59 @@
 using System.Diagnostics;
 using System.IO.Compression;
 
-namespace CPSI
+namespace CPScriptInterpreter
 {
-    public class CPScript
+    public static class CpScript
     {
-        public static void Run(string[] script)
+        private static void Run(string[] script)
         {
-            CPSRInstance instance = new CPSRInstance(script);
+            CpsrInstance instance = new CpsrInstance(script);
             instance.Start();
         }
 
-        public static void StrRun(string scriptstr)
+        public static void StrRun(string scriptStr)
         {
-            string[] script = scriptstr.Split("\r\n");
+            string[] script = scriptStr.Split("\r\n");
             Run(script);
         }
 
-        public static void LoadRun(string path)
+        public static void LoadRun(string? path)
         {
             if (path != null)
             {
                 try
-                {
-                    string[] script = File.ReadAllLines(path);
-                    if (script != null)
-                    {
-                        Run(script);
-                    }
-                    else
-                    {
-                        Terminal.WriteLine("&c%f%&[&c%c%&!&c%f%&]&c%c%&null exception occured!");
-                    }
+                { 
+                    Run(File.ReadAllLines(path));
                 }
                 catch (Exception e)
                 {
-                    Terminal.WriteLine("&c%8%&[&c%c%&!&c%8%&]&c%c%&Error & Stack trace:&c%6%&\r\n&c%6%&" + e.ToString());
+                    Terminal.WriteLine("&c%8%&[&c%c%&!&c%8%&]&c%c%&Error & Stack trace:&c%6%&\r\n&c%6%&" + e);
                 }
             }
         }
 
-        public class CPSRInstance
+        private class CpsrInstance(
+            string[] s,
+            string cache = "./cache",
+            string outp = "./build",
+            string rootp = "./src",
+            string aname = "artifact")
         {
-            private string[] Script;
-            public Dictionary<string, string> Vars;
-            public Dictionary<string, string> EnvVars;
-            public List<string> MKCopyIgnores;
-            public bool ShowState = true;
-
-
-            public CPSRInstance(string[] s, string cache = "./cache", string outp = "./build", string rootp = "./src", string aname = "artifact")
+            // ReSharper disable MemberCanBePrivate.Local
+            // ReSharper disable FieldCanBeMadeReadOnly.Local
+            public string[] Script = s;
+            public Dictionary<string, string> Vars = new();
+            public Dictionary<string, string> EnvVars = new()
             {
-                Script = s;
-                Vars = new Dictionary<string, string>();
-                MKCopyIgnores = new List<string>();
-                EnvVars = new Dictionary<string, string>();
-                EnvVars["project.cache"] = cache;
-                EnvVars["project.outdest"] = outp;
-                EnvVars["project.rootdest"] = rootp;
-                EnvVars["project.artifactName"] = aname;
-            }
+                ["project.cache"] = cache,
+                ["project.outdest"] = outp,
+                ["project.rootdest"] = rootp,
+                ["project.artifactName"] = aname
+            };
+            public List<string> MkCopyIgnores = new();
+            public bool ShowState = true;
+            // ReSharper enable MemberCanBePrivate.Local
+            // ReSharper enable FieldCanBeMadeReadOnly.Local
 
             public void Start()
             {
@@ -74,18 +68,18 @@ namespace CPSI
                 foreach (string statement in s)
                 {
                     line += 1;
-                    if (!stateConductor(statement, line))
+                    if (!StateConductor(statement, line))
                     {
                         break;
                     }
                 }
             }
 
-            public bool stateConductor(string s, int line = 0)
+            public bool StateConductor(string s, int line = 0)
             {
                 try
                 {
-                    s = varFormater(s);
+                    s = VarFormater(s);
                     if (s.StartsWith('#'))
                     {
                         return true;
@@ -93,17 +87,16 @@ namespace CPSI
                     if (ShowState)
                     {
                         Terminal.WriteLine(
-                            string.Format("&c%8%&[&c%b%&{0}&c%8%&]&c%e%&{1}"
-                            , line, s)
-                            );
+                            $"&c%8%&[&c%b%&{line}&c%8%&]&c%e%&{s}"
+                        );
                     }
                     switch (s.Split(' ')[0])
                     {
                         case "makecopy":
-                            makecopyCrossroad(s);
+                            MakeCopyCrossroad(s);
                             break;
                         case "copy":
-                            copyCP(Resolver.ResolveArgs(s));
+                            CopyCp(Resolver.ResolveArgs(s));
                             break;
                         case "hidescript":
                             ShowState = false;
@@ -115,28 +108,28 @@ namespace CPSI
                             Thread.Sleep(Convert.ToInt32(s.Substring(6)));
                             break;
                         case "task":
-                            runTask(s.Substring(5), false);
+                            RunTask(s.Substring(5), false);
                             break;
                         case "load":
-                            runTask(s.Substring(5), true);
+                            RunTask(s.Substring(5), true);
                             break;
                         case "del":
-                            deleteDo(s);
+                            DeleteDo(s);
                             break;
                         case "var":
-                            varSet(s);
+                            VarSet(s);
                             break;
                         case "env":
-                            evarSet(s);
+                            EvarSet(s);
                             break;
                         case "shdo":
-                            shDo(s);
+                            ShDo(s);
                             break;
                         case "echo":
                             Terminal.WriteLine("&c%8%&[&c%7%&>&c%8%&]&c%r%&" + s.Substring(5));
                             break;
                         case "pkg":
-                            pkgCrossroad(s);
+                            PkgCrossroad(s);
                             break;
                         default:
                             Terminal.WriteLine(
@@ -151,13 +144,13 @@ namespace CPSI
                 }
                 catch (Exception e)
                 {
-                    Terminal.WriteLine("&c%6%&[Line" + Convert.ToString(line) + "] Error & Stack trace:&c%6%&\r\n&c%6%&" + e.ToString());
+                    Terminal.WriteLine("&c%6%&[Line" + Convert.ToString(line) + "] Error & Stack trace:&c%6%&\r\n&c%6%&" + e);
                     return false;
                 }
                 return true;
             }
             
-            public void shDo(string s)
+            public void ShDo(string s)
             {
                 Terminal.WriteLine($"&c%8%&[&c%c%&c&c%8%&]&c%7%&Executing &c%8%&[&c%7%&{s.Substring(5)}&c%8%&]");
                 string[] ss = s.Split(' ');
@@ -182,7 +175,7 @@ namespace CPSI
             }
 
             // task & clsm
-            public void runTask(string path, bool isCarry)
+            public void RunTask(string path, bool isCarry)
             {
                 string[] s = File.ReadAllLines(path);
                 if (isCarry)
@@ -191,13 +184,13 @@ namespace CPSI
                 }
                 else
                 {
-                    CPSRInstance i = new CPSRInstance(s);
+                    CpsrInstance i = new CpsrInstance(s);
                     i.Start();
                 }
             }
 
             //Package
-            public void pkgCrossroad(string s)
+            public void PkgCrossroad(string s)
             {
                 string[] ss = Resolver.ResolveArgs(s);
                 switch (ss[1])
@@ -208,11 +201,11 @@ namespace CPSI
                             case "zip":
                                 if (ss.Length > 3)
                                 {
-                                    pkgMakeZip(ss[3], ss[4], ss[5]);
+                                    PkgMakeZip(ss[3], ss[4], ss[5]);
                                 }
                                 else
                                 {
-                                    pkgMakeZip();
+                                    PkgMakeZip();
                                 }
                                 break;
                         }
@@ -221,41 +214,30 @@ namespace CPSI
                         switch (ss[2])
                         {
                             case "zip":
-                                pkgApartZip(ss[3], ss[4]);
+                                PkgApartZip(ss[3], ss[4]);
                                 break;
                         }
-                        break;
-                    default:
                         break;
                 }
             }
 
-            public void pkgMakeZip(string? tdir = null,string? odir = null, string? ofnm = null)
+            public void PkgMakeZip(string? tdir = null,string? odir = null, string? ofnm = null)
             {
-                if (tdir == null)
-                {
-                    tdir = geteVar("project.cache");
-                }
-                if (odir == null)
-                {
-                    odir = geteVar("project.outdest");
-                }
-                if (ofnm == null)
-                {
-                    ofnm = varFormater(geteVar("project.artifactName"));
-                }
+                tdir ??= GetEnvVar("project.cache");
+                odir ??= GetEnvVar("project.outdest");
+                ofnm ??= VarFormater(GetEnvVar("project.artifactName"));
                 Terminal.WriteLine($"&c%8%&[&c%6%&z&c%8%&]&c%7%&Creating ZipPack...");
                 if (!Directory.Exists(odir))
                 {
                     Directory.CreateDirectory(odir);
                 }
-                pkgZipGenerator(tdir,
+                PkgZipGenerator(tdir,
                     Path.Combine(odir,ofnm)
                     .Replace("\\","/")
                     );
             }
 
-            public void pkgApartZip(string tfile, string tdest)
+            public void PkgApartZip(string tfile, string tdest)
             {
                 if (!Directory.Exists(tdest))
                 {
@@ -264,7 +246,7 @@ namespace CPSI
                 ZipFile.ExtractToDirectory(tfile, tdest);
             }
 
-            public void pkgZipGenerator(string target,string outpath)
+            public void PkgZipGenerator(string target,string outpath)
             {
                 Terminal.WriteLine($"&c%8%&[&c%6%&z&c%8%&]&c%7%&{outpath} &c%8%&from {target}");
                 if (File.Exists(outpath))
@@ -275,13 +257,13 @@ namespace CPSI
             }
 
             // Vars
-            public void varSet(string s)
+            public void VarSet(string s)
             {
                 string[] sp = s.Split(' ');
-                setVar(sp[1], s.Substring(sp[1].Length + 5));
+                SetVar(sp[1], s.Substring(sp[1].Length + 5));
             }
 
-            public string varFormater(string s)
+            public string VarFormater(string s)
             {
                 if (s.Contains("_%"))
                 {
@@ -294,7 +276,7 @@ namespace CPSI
                             if (se.Contains("%_"))
                             {
                                 string[] sep = se.Split("%_");
-                                string v = getVar(sep[0]);
+                                string v = GetVar(sep[0]);
                                 buffer += v + se.Substring(3 + sep[0].Length);
                             }
                             else
@@ -318,102 +300,98 @@ namespace CPSI
                 }
             }
 
-            public void setVar(string key,string var)
+            public void SetVar(string key,string var)
             {
                 Vars[key] = var;
             }
 
-            public string getVar(string key)
+            public string GetVar(string key)
             {
                 return Vars[key]; 
             }
 
             // EnvVars
-            public void evarSet(string s)
+            public void EvarSet(string s)
             {
                 string[] sp = s.Split(' ');
                 Terminal.WriteLine($"&c%8%&[&c%9%&e&c%8%&]&c%7%&set ev&c%8%&[&c%f%&{sp[1]}&c%8%&]&c%7%&to&c%8%&[&c%f%&{s.Substring(sp[1].Length + 5)}&c%8%&]");
-                seteVar(sp[1], s.Substring(sp[1].Length + 5));
+                SetEnvVar(sp[1], s.Substring(sp[1].Length + 5));
             }
 
-            public void seteVar(string key, string var)
+            public void SetEnvVar(string key, string var)
             {
                 EnvVars[key] = var;
             }
 
-            public string geteVar(string key)
+            public string GetEnvVar(string key)
             {
                 return EnvVars[key];
             }
 
             // MakeCopy
-            public void makecopyCrossroad(string s)
+            public void MakeCopyCrossroad(string s)
             {
                 switch (s.Split(' ')[1])
                 {
                     case "ignore":
-                        makecopyIgnoreCrossroad(s);
+                        MakeCopyIgnoreCrossroad(s);
                         break;
                     case "make":
-                        makecopyMake(geteVar("project.rootdest"),geteVar("project.cache"));
+                        MakeCopyMake(GetEnvVar("project.rootdest"),GetEnvVar("project.cache"));
                         break;
                     case "cleanup":
-                        makecopyCleanUp(geteVar("project.cache"));
-                        break;
-                    default:
+                        MakeCopyCleanUp(GetEnvVar("project.cache"));
                         break;
                 }
             }
 
-            public void makecopyIgnoreCrossroad(string s)
+            public void MakeCopyIgnoreCrossroad(string s)
             {
                 switch (s.Split(' ')[2])
                 {
                     case "add":
-                        makecopyIgnoreAdd(s.Substring(20));
+                        MakeCopyIgnoreAdd(s.Substring(20));
                         break;
                     case "rmv":
-                        makecopyIgnoreRemove(s.Substring(20));
+                        MakeCopyIgnoreRemove(s.Substring(20));
                         break;
                     case "remove":
-                        makecopyIgnoreRemove(s.Substring(23));
+                        MakeCopyIgnoreRemove(s.Substring(23));
                         break;
                     case "show":
-                        makecopyIgnoreShow();
-                        break;
-                    default:
+                        MakeCopyIgnoreShow();
                         break;
                 }
             }
 
-            public void makecopyIgnoreAdd(string rule)
+            public void MakeCopyIgnoreAdd(string rule)
             {
-                MKCopyIgnores.Add(rule);
+                MkCopyIgnores.Add(rule);
             }
 
-            public void makecopyIgnoreRemove(string rule)
+            public void MakeCopyIgnoreRemove(string rule)
             {
-                MKCopyIgnores.Remove(rule);
+                MkCopyIgnores.Remove(rule);
             }
 
-            public void makecopyIgnoreShow()
+            public void MakeCopyIgnoreShow()
             {
                 Terminal.WriteLine("&c%8%&[&c%b%&c&c%8%&]&c%7%&Ignored:");
-                foreach (string s in MKCopyIgnores)
+                foreach (string s in MkCopyIgnores)
                 {
                     Terminal.WriteLine($"&c%8%& |[&c%7%&{s}&c%8%&]");
                 }
                 Terminal.WriteLine("&c%8%&[-]");
             }
 
-            public void makecopyMake(string sourceFolder, string destFolder)
+            public void MakeCopyMake(string sourceFolder, string destFolder)
             {
                 // init
                 Terminal.WriteLine("&c%8%&[&c%b%&c&c%8%&]&c%7%&Resolving ignorations");
                 List<string> ic = new List<string>();
                 List<string> im = new List<string>();
                 List<string> ip = new List<string>();
-                foreach (string s in MKCopyIgnores)
+                foreach (string s in MkCopyIgnores)
                 {
                     Terminal.WriteLine($"&c%8%& |&c%7%&Parsing&c%8%&[&c%f%&{s}&c%8%&]");
                     if (s.StartsWith("./"))
@@ -465,11 +443,11 @@ namespace CPSI
                 }
                 #endif
                 Terminal.WriteLine("&c%8%&[&c%b%&c&c%8%&]&c%f%&Start Copy!");
-                makecopyCopy(sourceFolder, destFolder, ic, im, ip);
+                MakeCopyCopy(sourceFolder, destFolder, ic, im, ip);
                 Terminal.WriteLine("&c%8%&[&c%b%&c&c%8%&]&c%f%&Finished!");
             }
 
-            public void makecopyCleanUp(string destFolder)
+            public void MakeCopyCleanUp(string destFolder)
             {
                 if (Directory.Exists(destFolder))
                 {
@@ -482,26 +460,13 @@ namespace CPSI
                 }
             }
 
-            public void makecopyCopy(string sourceFolder, string destFolder, List<string>? icontain = null, List<string>? imatch = null, List<string>? ipath = null)
+            public void MakeCopyCopy(string sourceFolder, string destFolder, List<string>? icontain = null, List<string>? imatch = null, List<string>? ipath = null)
             {
                 //Pre-Process
-                if (icontain == null)
-                {
-                    icontain = new List<string>();
-                }
-                if (imatch == null)
-                {
-                    imatch = new List<string>();
-                }
-                if (ipath == null)
-                {
-                    ipath = new List<string>();
-                }
-                bool isContain = false;
-                if (icontain.Count > 0)
-                {
-                    isContain = true;
-                }
+                icontain ??= new List<string>();
+                imatch ??= new List<string>();
+                ipath ??= new List<string>();
+                bool isContain = icontain.Count > 0;
                 if (!Directory.Exists(destFolder))
                 {
                     Directory.CreateDirectory(destFolder);
@@ -561,25 +526,25 @@ namespace CPSI
                             if (allow)
                             {
                                 Terminal.WriteLine($"&c%8%&[&c%b%&c&c%8%&][&c%7%&D&c%8%&]&c%7%&{name}/&c%8%&|{src} to {dest}");
-                                makecopyCopy(folder, dest, icontain, imatch, ipath);
+                                MakeCopyCopy(folder, dest, icontain, imatch, ipath);
                             }
                         }
                         else
                         {
                             Terminal.WriteLine($"&c%8%&[&c%b%&c&c%8%&][&c%7%&D&c%8%&]&c%7%&{name}&c%8%&|{src} to {dest}");
-                            makecopyCopy(folder, dest, icontain, imatch, ipath);
+                            MakeCopyCopy(folder, dest, icontain, imatch, ipath);
                         }
                     }
                 }
             }
 
             //misc
-            public void deleteDo(string s)
+            public void DeleteDo(string s)
             {
-                deletor(s.Substring(4));
+                Deleter(s.Substring(4));
             }
 
-            public void deletor(string path)
+            public static void Deleter(string path)
 
             {
                 if (File.GetAttributes(path) == FileAttributes.Directory)
@@ -591,7 +556,7 @@ namespace CPSI
                     File.Delete(path);
                 }
             }
-            public void copyCP(string[] ca)
+            public void CopyCp(string[] ca)
             {
                 if (ca.Length > 3)
                 {
@@ -602,7 +567,7 @@ namespace CPSI
                         List<string> ic = new List<string>();
                         List<string> im = new List<string>();
                         List<string> ip = new List<string>();
-                        foreach (string s in MKCopyIgnores)
+                        foreach (string s in MkCopyIgnores)
                         {
                             Terminal.WriteLine($"&c%8%& |&c%7%&Parsing&c%8%&[&c%f%&{s}&c%8%&]");
                             if (s.StartsWith("./"))
@@ -654,13 +619,13 @@ namespace CPSI
                         }
                     #endif
                         Terminal.WriteLine("&c%8%&[&c%b%&c&c%8%&]&c%f%&Start Copy!");
-                        makecopyCopy(ca[1], ca[2], ic, im, ip);
+                        MakeCopyCopy(ca[1], ca[2], ic, im, ip);
                         Terminal.WriteLine("&c%8%&[&c%b%&c&c%8%&]&c%f%&Done!");
                         return;
                     }
                 }
                 Terminal.WriteLine("&c%8%&[&c%b%&c&c%8%&]&c%f%&Start Copy!");
-                makecopyCopy(ca[1], ca[2]);
+                MakeCopyCopy(ca[1], ca[2]);
                 Terminal.WriteLine("&c%8%&[&c%b%&c&c%8%&]&c%f%&Done!");
             }
         }

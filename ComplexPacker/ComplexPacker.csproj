@@ -9,8 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CPSI\CPSI.csproj" />
-    <ProjectReference Include="..\Util\Util.csproj" />
+    <ProjectReference Include="..\CPScriptInterpreter\CPScriptInterpreter.csproj" />
+    <ProjectReference Include="..\DawnUtils\DawnUtils.csproj" />
   </ItemGroup>
 
 </Project>

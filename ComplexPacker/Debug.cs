@@ -1,31 +1,31 @@
 ﻿using DawnUtils;
-using CPSI;
+using CPScriptInterpreter;
 
-namespace ComplexPaccker
+namespace ComplexPacker
 {
-    internal class Debug
+    internal static class Debug
     {
-        public static void debugCrossroad(string[] args)
+        public static void DebugCrossroad(string[] args)
         {
             #if DEBUG
             if (args.Length == 1)
             {
-                printHelp();
+                PrintHelp();
             }
             else
             {
                 switch (args[1])
                 {
                     case "":
-                        printHelp();
+                        PrintHelp();
                         break;
                     case "terminal":
-                        Terminal.DeColorfulBug();
+                        DebugTerminal();
                         break;
                     case "s":
                         if (args.Length == 3)
                         {
-                            CPScript.LoadRun(args[2]);
+                            CpScript.LoadRun(args[2]);
                         }
                         else
                         {
@@ -33,24 +33,24 @@ namespace ComplexPaccker
                         }
                         break;
                     default:
-                        actionNotExist();
+                        ActionNotExist();
                         break;
                 } 
             }
             #endif
         }
 
-        public static void printHelp() 
+        private static void PrintHelp() 
         {
         
         }
 
-        public static void actionNotExist() 
+        private static void ActionNotExist() 
         {
         
         }
 
-        public static void debugTerminal()
+        private static void DebugTerminal()
         {
             Terminal.DeColorfulBug();
         }

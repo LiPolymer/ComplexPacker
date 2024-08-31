@@ -3,13 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35027.167
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ComplexPaccker", "ComplexPaccker\ComplexPaccker.csproj", "{B3B9FB1B-F43B-4226-A3D9-8D23F506F8AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ComplexPacker", "ComplexPacker\ComplexPacker.csproj", "{B3B9FB1B-F43B-4226-A3D9-8D23F506F8AD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Util", "Util\Util.csproj", "{E3E6C61E-3EA9-4E11-8AE3-D6BC0B0554E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DawnUtils", "DawnUtils\DawnUtils.csproj", "{E3E6C61E-3EA9-4E11-8AE3-D6BC0B0554E5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CPSI", "CPSI\CPSI.csproj", "{88AC77ED-7BB4-4984-83F3-9F21A684211D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICPPlugin", "ICPPlugin\ICPPlugin.csproj", "{8BE036E3-7484-4E3C-B0DA-B20CA1DEC1BB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CPScriptInterpreter", "CPScriptInterpreter\CPScriptInterpreter.csproj", "{88AC77ED-7BB4-4984-83F3-9F21A684211D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +27,6 @@ Global
 		{88AC77ED-7BB4-4984-83F3-9F21A684211D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{88AC77ED-7BB4-4984-83F3-9F21A684211D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{88AC77ED-7BB4-4984-83F3-9F21A684211D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8BE036E3-7484-4E3C-B0DA-B20CA1DEC1BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8BE036E3-7484-4E3C-B0DA-B20CA1DEC1BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8BE036E3-7484-4E3C-B0DA-B20CA1DEC1BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8BE036E3-7484-4E3C-B0DA-B20CA1DEC1BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

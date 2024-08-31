@@ -1,9 +1,8 @@
-﻿using System.Drawing;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace DawnUtils
 {
-    public class Terminal
+    public static class Terminal
     {
         public static void Write(string msg)
         {

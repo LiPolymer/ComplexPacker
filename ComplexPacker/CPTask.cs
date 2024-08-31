@@ -1,27 +1,21 @@
 ﻿using DawnUtils;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace ComplexPaccker
+namespace ComplexPacker
 {
-    public class CPTask
+    public static class CpTask
     {
-        public static void cpTaskCrossroad(string[] args)
+        public static void CpTaskCrossEntry(string[] args)
         {
             if (args.Length >= 2)
             {
                 if (args[1] == "-r")
                 {
-                    taskScan();
-                    cpTaskCrossroadR(args, 1);
+                    TaskScan();
+                    CpTaskCrossroad(args, 1);
                 }
                 else
                 {
-                    cpTaskCrossroadR(args, 0);
+                    CpTaskCrossroad(args, 0);
                 }
             }
             else
@@ -30,29 +24,29 @@ namespace ComplexPaccker
             }
         }
 
-        static List<string> Tasks = new List<string>();
+        static List<string> _tasks = new List<string>();
 
-        public static void cpTaskCrossroadR(string[] args, int argDelta)
+        private static void CpTaskCrossroad(string[] args, int argDelta)
         {
-            if (Tasks.Count == 0)
+            if (_tasks.Count == 0)
             {
-                taskScan();
+                TaskScan();
             }
             string ta = args[1 + argDelta];
             switch (ta)
             {
                 case "-list":
                     Terminal.WriteLine("&c%8%&[&c%2%&i&c%8%&]&c%6%&Listing...");
-                    foreach (string t in Tasks)
+                    foreach (string t in _tasks)
                     {
                         Terminal.WriteLine($"&c%8%& |&c%6%&{t}");
                     }
                     Terminal.WriteLine("&c%8%&[-]&c%6%&Done!");
                     break;
                 default:
-                    if (Tasks.Contains(ta))
+                    if (_tasks.Contains(ta))
                     {
-                        CPSI.CPScript.LoadRun($"./tasks/{ta}.cps");
+                        CPScriptInterpreter.CpScript.LoadRun($"./tasks/{ta}.cps");
                     }
                     else
                     {
@@ -62,9 +56,9 @@ namespace ComplexPaccker
             }
         }
 
-        public static void taskScan()
+        private static void TaskScan()
         {
-            Tasks = new List<string>();
+            _tasks = new List<string>();
             Terminal.WriteLine("&c%8%&[&c%2%&i&c%8%&]&c%6%&Scanning...");
             if (!Directory.Exists("./tasks"))
             {
@@ -75,10 +69,10 @@ namespace ComplexPaccker
                 if (Path.GetFileName(file).EndsWith(".cps"))
                 {
                     Terminal.WriteLine($"&c%8%& |&c%6%&{Path.GetFileName(file).Remove(Path.GetFileName(file).Length - 4)}&c%8%&[{file.Replace("\\", "/")}]");
-                    Tasks!.Add(Path.GetFileName(file).Remove(Path.GetFileName(file).Length - 4));
+                    _tasks.Add(Path.GetFileName(file).Remove(Path.GetFileName(file).Length - 4));
                 }
             }
-            Terminal.WriteLine($"&c%8%&[-]&c%6%&Done! {Tasks.Count()} Task(s) Loaded");
+            Terminal.WriteLine($"&c%8%&[-]&c%6%&Done! {_tasks.Count()} Task(s) Loaded");
         }
     }
 }
