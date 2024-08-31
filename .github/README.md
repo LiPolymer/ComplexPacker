@@ -14,8 +14,8 @@ some-project
 |  | pack.mcmeta
 |  \ ...
 \ task
-| build.cps
-\ ...
+   | build.cps
+   \ ...
 ```
 Define a build script in ` build. cps `
 Afterward, open the ComplexPacker executable file and enter Interactive Mode
