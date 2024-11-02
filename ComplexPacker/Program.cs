@@ -7,13 +7,13 @@ namespace ComplexPacker
         static void Main(string[] args)
         {
             Console.ForegroundColor = ConsoleColor.White;
-            foreach (string ag in args)
+            foreach (string ag in args) 
             {
                 #if DEBUG
                 Terminal.WriteLine(ag);
                 #endif
             }
-            if (args.Length == 0)
+            if (args.Length == 0) 
             {
                 InteractiveCli();
             }
