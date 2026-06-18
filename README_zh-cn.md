@@ -1,4 +1,7 @@
-﻿# ComplexPacker
+# ComplexPacker
+
+> [!NOTE] 
+> This project was obsoleted, use [ShulkerRDK](https://gitlab.com/LiPolymer/ShulkerRDK) instead.
 
 [English](README.md)
 
