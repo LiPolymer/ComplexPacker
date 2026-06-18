@@ -1,5 +1,8 @@
 # ComplexPacker
 
+> [!NOTE]
+> This project was obsoleted, use [ShulkerRDK](https://gitlab.com/LiPolymer/ShulkerRDK) instead.
+
 [简体中文](README_zh-cn.md)
 
 A simple automation tool for`minecraft resourcepack/datapack/lowcodemod`and more!
